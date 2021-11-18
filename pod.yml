@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  test-pod-01
+  namespace: logging
+  labels:
+    name:  test-pod-01
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      os: centos
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        os: centos
+    spec:
+      containers:
+      - image:  zneetesh/logrotate-flask:v1
+        imagePullPolicy: Always
+        name:  test-pod-01
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "500Mi" 
+        ports:
+        - containerPort:  22
+          name:  test-pod-01
+        volumeMounts:
+          - name: persistent-storage
+            mountPath: /var/neeteshappscoop
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: azurefile-pvc-01
+      restartPolicy: Always
